@@ -1,0 +1,15 @@
+let a = 10;
+console.log("value: ", a);
+console.log("type: ", typeof a);
+a = "문자열";
+console.log("value: ", a);
+console.log("type: ", typeof a);
+a = true;
+console.log("value: ", a);
+console.log("type: ", typeof a);
+a = {};
+console.log("value: ", a);
+console.log("type: ", typeof a);
+let b;
+console.log("value: ", b);
+console.log("type: ", typeof b);
