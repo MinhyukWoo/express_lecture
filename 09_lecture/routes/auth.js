@@ -16,7 +16,7 @@ router.post("/join", isNotLoggedIn, async (request, response, next) => {
     const hash = await bcrypt.hash(password, 12);
     await User.create({
       email,
-      nick,
+      nick: nick,
       password: hash,
     });
     return response.redirect("/");
@@ -49,7 +49,6 @@ router.get("/logout", isLoggedIn, (request, response) => {
   request.logout({ keepSessionInfo: false }, (error) => {
     console.error(error);
   });
-  request.session.destory();
   response.redirect("/");
 });
 

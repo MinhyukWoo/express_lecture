@@ -10,6 +10,8 @@ const session = require("express-session");
 const { sequelize } = require("./models");
 const passport = require("passport");
 const passportConfig = require("./passport");
+const postRouter = require("./routes/post");
+const userRouter = require("./routes/user");
 
 dotenv.config();
 
@@ -39,6 +41,7 @@ sequelize
 
 app.use(morgan("dev"));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/img", express.static(path.join(__dirname, "uploads")));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser(process.env.COOKIE_SECRET));
@@ -70,6 +73,8 @@ app.use(passport.session());
 
 app.use("/", pageRouter);
 app.use("/auth", authRouter);
+app.use("/post", postRouter);
+app.use("/user", userRouter);
 
 app.use((request, response, next) => {
   const error = new Error(
