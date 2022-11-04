@@ -64,25 +64,45 @@
             socket.emit("cancel", { x: x, y: y });
           }
         }
-        $.getJSON("/seats", { dummy: new Date().getTime() }, function (data) {
-          $.each(data, (indexY, line) => {
-            const $line = $("<div></div>").addClass("line");
-            $.each(line, (indexX, seat) => {
-              var $output = $("<div></div>", {
-                class: "seat",
-                "data-x": indexX,
-                "data-y": indexY,
-              }).appendTo($line);
-              if (seat == 1) {
-                $output.addClass("enable").on("click", onClickSeat);
-              } else if (seat == 2) {
-                $output.addClass("disable").on("click", onClickSeatCancel);
-              }
-            });
-            $line.appendTo("body");
-          });
+        $("#movie_selection").submit(function (event) {
+          event.preventDefault();
+          const movie = $("#movie_list").val();
+          const movie_date = $("#movie_date_input").val();
+          $.getJSON(
+            `seats/?movie_data=${movie_date}&movie=${movie}`,
+            { dummy: new Date().getTime() },
+            function (data) {
+              console.log("실행");
+              $.each(data, (indexY, line) => {
+                const $line = $("<div></div>").addClass("line");
+                $.each(line, (indexX, seat) => {
+                  var $output = $("<div></div>", {
+                    class: "seat",
+                    "data-x": indexX,
+                    "data-y": indexY,
+                  }).appendTo($line);
+                  if (seat == 1) {
+                    $output.addClass("enable").on("click", onClickSeat);
+                  } else if (seat == 2) {
+                    $output.addClass("disable").on("click", onClickSeatCancel);
+                  }
+                });
+                $line.appendTo("body");
+              });
+            }
+          );
         });
       });
     </script>
   </head>
+  <body>
+    <form action="" method="get" id="movie_selection">
+      <input type="date" name="movie_date" id="movie_date_input" />
+      <input type="submit" value="select_movie" id="movie_select_button" />
+    </form>
+    <select name="movie" id="movie_list" form="movie_selection">
+      <option value="0">A 영화</option>
+      <option value="1">B 영화</option>
+    </select>
+  </body>
 </html>
