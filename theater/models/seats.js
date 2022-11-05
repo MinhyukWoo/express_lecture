@@ -3,6 +3,12 @@ module.exports = (sequelize) => {
   class Seat extends Model {}
   Seat.init(
     {
+      id: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        allowNull: false,
+        primaryKey: true,
+      },
       seatNumber: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -24,7 +30,8 @@ module.exports = (sequelize) => {
   );
   Seat.associate = function (db) {
     db.Seat.belongsTo(db.Screen, {
-      foreignKey: { primaryKey: true, allowNull: false },
+      foreignKey: { name: "screen", allowNull: false, primaryKey: true },
+      targetKey: "id",
     });
   };
   return Seat;
