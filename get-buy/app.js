@@ -10,6 +10,7 @@ const testRouter = require("./routes/test");
 const passport = require("passport");
 const passportConfig = require("./passport");
 const session = require("express-session");
+const db = require("./models");
 
 sequelize.sync({ force: false });
 passportConfig();
@@ -45,40 +46,83 @@ server.listen(52273, () => {
 const io = require("socket.io")(server);
 
 io.on("connection", (socket) => {
-  function onReturn(index) {
-    products[index].count++;
-    clearTimeout(cart[index].timerID);
-    delete cart[index];
-    io.sockets.emit("count", {
-      index: index,
-      count: products[index].count,
+  var cart = {};
+  var indices = [];
+
+  function onReturn() {
+    indices.forEach((index) => {
+      db.Product.findOne({ where: { id: index } })
+        .then((product) => {
+          product.count = product.count + 1;
+          return product.save();
+        })
+        .then((product) => {
+          delete cart[index];
+          io.sockets.emit("count", {
+            index: index,
+            count: product.count,
+          });
+        })
+        .catch((err) => {
+          console.error(err);
+        });
     });
+    clearTimeout(cart.timerID);
+    cart = {};
+    indices = [];
   }
 
-  var cart = {};
-
   socket.on("cart", (index) => {
-    console.log(index);
-    products[index].count--;
-    cart[index] = {};
-    cart[index].index = index;
-    cart[index].timerID = setTimeout(() => {
-      onReturn(index);
-    }, 1000 * 60 * 10);
-    io.sockets.emit("count", {
-      index: index,
-      count: products[index].count,
-    });
+    db.Product.findOne({ where: { id: index } })
+      .then((product) => {
+        product.count = product.count - 1;
+        return product.save();
+      })
+      .then((product) => {
+        const timeOutSec = 10;
+        cart[index] = {};
+        cart[index].index = index;
+        indices.push(index);
+        if (cart.timeID) {
+          clearTimeout(cart.timeID);
+        }
+        cart.timerID = setTimeout(() => {
+          onReturn();
+        }, timeOutSec * 1000);
+        const timeOutDate = new Date();
+        timeOutDate.setSeconds(timeOutDate.getSeconds() + timeOutSec);
+        io.sockets.emit("time", {
+          index: index,
+          timeOutDate: timeOutDate.toString(),
+        });
+        io.sockets.emit("count", {
+          index: index,
+          count: product.count,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   });
   socket.on("buy", (index) => {
-    clearTimeout(cart[index].timerID);
+    clearTimeout(cart.timerID);
     delete cart[index];
-    io.sockets.emit("count", {
-      index: index,
-      count: products[index].count,
-    });
+    db.Product.findOne({ where: { id: index } })
+      .then((product) => {
+        io.sockets.emit("time", {
+          index: index,
+          timeOutDate: new Date(),
+        });
+        io.sockets.emit("count", {
+          index: index,
+          count: product.count,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   });
   socket.on("return", (index) => {
-    onReturn(index);
+    onReturn();
   });
 });

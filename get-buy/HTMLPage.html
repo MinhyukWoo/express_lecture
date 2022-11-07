@@ -12,13 +12,52 @@
     <script>
       $(document).ready(() => {
         function changeIcon(target, from, to) {
-          alert(from + to);
           $(target).removeClass(from).addClass(to);
         }
+
         function changeCount(index, count) {
           $("li[data-index=" + index + "] .ui-li-count").html(count);
         }
+
+        function updateTimeOut(timeOutDate) {
+          const updater = setInterval(() => {
+            const nowDate = new Date();
+            const remainSec = Math.ceil((timeOutDate - nowDate) / 1000);
+            $("#cartTime").text(`카트 초기화까지 ${remainSec}초 남음`);
+          }, 100);
+          return updater;
+        }
+
         var socket = io.connect("http://localhost:52273");
+        let currentUpdater = null;
+        let currentTimeout = null;
+        let indices = [];
+
+        socket.on("time", (data) => {
+          if (currentUpdater) {
+            clearInterval(currentUpdater);
+            clearTimeout(currentTimeout);
+          }
+          indices.push(data.index);
+          const timeOutDate = new Date(data.timeOutDate);
+          const interval = timeOutDate - new Date();
+          currentUpdater = updateTimeOut(timeOutDate);
+          currentTimeout = setTimeout(() => {
+            if (currentUpdater) {
+              clearInterval(currentUpdater);
+              $("#cartTime").text("");
+              indices.forEach((index) => {
+                $("li[data-index=" + index + "] .ui-btn").attr("toggle", "on");
+                changeIcon(
+                  "li[data-index=" + index + "] .ui-btn",
+                  "ui-icon-check",
+                  "ui-icon-heart"
+                );
+              });
+            }
+          }, interval);
+        });
+
         socket.on("count", (data) => {
           changeCount(data.index, data.count);
         });
@@ -62,7 +101,7 @@
           <% products.forEach(function (item, index) {%>
           <li class="product" data-index="<%= item.index %>">
             <a href="#">
-              <img src="test.jpg" />
+              <img src="<%= item.image %>" />
               <h3><%= item.name %></h3>
               <p><%= item.price %>원</p>
               <span class="ui-li-count"><%= item.count %></span>
@@ -72,6 +111,7 @@
           <% }); %>
         </ui>
       </div>
+      <div id="cartTime"></div>
       <form action="http://localhost:52273/logout" method="post">
         <button type="submit">로그아웃</button>
       </form>
