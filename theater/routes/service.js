@@ -9,6 +9,7 @@ router.get("/", (request, response, next) => {
       response.render("movieSelection", {
         screens: screens.map(({ id, date, screenMovie, Movie }) => {
           return {
+            id, 
             date: new Date(date).toLocaleString(),
             screenMovieId: screenMovie,
             screenMovieTitle: Movie.title,
