@@ -83,9 +83,7 @@ io.on("connection", (socket) => {
         cart[index] = {};
         cart[index].index = index;
         indices.push(index);
-        if (cart.timeID) {
-          clearTimeout(cart.timeID);
-        }
+        clearTimeout(cart.timerID);
         cart.timerID = setTimeout(() => {
           onReturn();
         }, timeOutSec * 1000);
@@ -104,25 +102,33 @@ io.on("connection", (socket) => {
         console.error(err);
       });
   });
-  socket.on("buy", (index) => {
+  socket.on("buy", () => {
     clearTimeout(cart.timerID);
-    delete cart[index];
-    db.Product.findOne({ where: { id: index } })
-      .then((product) => {
-        io.sockets.emit("time", {
-          index: index,
-          timeOutDate: new Date(),
+    indices.forEach((index) => {
+      delete cart[index];
+      db.Product.findOne({ where: { id: index } })
+        .then((product) => {
+          io.sockets.emit("time", {
+            index: index,
+            timeOutDate: new Date(),
+          });
+          io.sockets.emit("count", {
+            index: index,
+            count: product.count,
+          });
+        })
+        .catch((err) => {
+          console.error(err);
         });
-        io.sockets.emit("count", {
-          index: index,
-          count: product.count,
-        });
-      })
-      .catch((err) => {
-        console.error(err);
-      });
+    });
+    cart = {};
+    indices = [];
   });
-  socket.on("return", (index) => {
+  socket.on("return", () => {
     onReturn();
+  });
+  socket.on("disconnect", () => {
+    onReturn();
+    console.log("Disconnect user");
   });
 });

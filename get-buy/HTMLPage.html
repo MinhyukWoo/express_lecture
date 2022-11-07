@@ -19,7 +19,7 @@
           $("li[data-index=" + index + "] .ui-li-count").html(count);
         }
 
-        function updateTimeOut(timeOutDate) {
+        function setCartTime(timeOutDate) {
           const updater = setInterval(() => {
             const nowDate = new Date();
             const remainSec = Math.ceil((timeOutDate - nowDate) / 1000);
@@ -33,6 +33,20 @@
         let currentTimeout = null;
         let indices = [];
 
+        function returnAll() {
+          clearInterval(currentUpdater);
+          clearTimeout(currentTimeout);
+          $("#cartTime").text("");
+          indices.forEach((index) => {
+            $("li[data-index=" + index + "] .ui-btn").attr("toggle", "on");
+            changeIcon(
+              "li[data-index=" + index + "] .ui-btn",
+              "ui-icon-check",
+              "ui-icon-heart"
+            );
+          });
+        }
+
         socket.on("time", (data) => {
           if (currentUpdater) {
             clearInterval(currentUpdater);
@@ -41,7 +55,7 @@
           indices.push(data.index);
           const timeOutDate = new Date(data.timeOutDate);
           const interval = timeOutDate - new Date();
-          currentUpdater = updateTimeOut(timeOutDate);
+          currentUpdater = setCartTime(timeOutDate);
           currentTimeout = setTimeout(() => {
             if (currentUpdater) {
               clearInterval(currentUpdater);
@@ -69,18 +83,21 @@
             socket.emit("cart", Number(index));
             changeIcon(this, "ui-icon-heart", "ui-icon-check");
             $(this).attr("toggle", "off");
-          } else {
-            var index = $(this).attr("data-index");
-            if (confirm("물건을 구매하시겠습니까?")) {
-              socket.emit("buy", Number(index));
-              $(this).parent().remove();
-              $("listview").listview("refresh");
-            } else {
-              socket.emit("return", Number(index));
-              changeIcon(this, "ui-icon-check", "ui-icon-heart");
-            }
-            $(this).attr("toggle", "on");
           }
+        });
+
+        $("#buyButton").click(function () {
+          if (confirm("물건을 구매하시겠습니까?")) {
+            socket.emit("buy");
+            $("listview").listview("refresh");
+          } else {
+            socket.emit("return");
+            returnAll();
+          }
+        });
+        $("#logoutButton").click(function () {
+          socket.disconnect();
+          returnAll();
         });
       });
     </script>
@@ -112,8 +129,9 @@
         </ui>
       </div>
       <div id="cartTime"></div>
+      <button id="buyButton">구매하기</button>
       <form action="http://localhost:52273/logout" method="post">
-        <button type="submit">로그아웃</button>
+        <button id="logoutButton" type="submit">로그아웃</button>
       </form>
     </div>
   </body>
