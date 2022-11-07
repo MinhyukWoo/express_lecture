@@ -3,13 +3,12 @@ const fs = require("fs/promises");
 const router = express.Router();
 const db = require("../models/index");
 
-router.get("/select-screen", (request, response, next) => {
+router.get("/", (request, response, next) => {
   db.Screen.findAll({ include: db.Movie })
     .then((screens) => {
       response.render("movieSelection", {
         screens: screens.map(({ id, date, screenMovie, Movie }) => {
           return {
-            id,
             date: new Date(date).toLocaleString(),
             screenMovieId: screenMovie,
             screenMovieTitle: Movie.title,

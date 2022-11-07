@@ -28,7 +28,31 @@ function createSeats() {
   }
 }
 
+function createSeats2() {
+  for (let index = 0; index < 196; index++) {
+    db.Seat.create({
+      seatNumber: index,
+      state: "enable",
+      screen: 4,
+    });
+  }
+}
+
+function disableSeat() {
+  for (let index = 0; index < 196; index++) {
+    if (index % 14 == 4 || index % 14 == 9) {
+      db.Seat.findAll({ where: { seatNumber: index } }).then((seats) => {
+        seats.forEach((seat) => {
+          seat.state = "disable";
+          seat.save();
+        });
+      });
+    }
+  }
+}
+
 router.get("", (request, response, next) => {
+  disableSeat();
   response.send("Done");
 });
 

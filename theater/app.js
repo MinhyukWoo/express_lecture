@@ -18,7 +18,7 @@ nunjucks.configure("views", {
   express: app,
   watch: true,
 });
-app.set("view engine", "njk");
+app.set("view engine", "html");
 app.set("io", io);
 
 app.use(morgan("dev"));
@@ -41,6 +41,7 @@ io.sockets.on("connection", (socket) => {
     );
     io.sockets.emit("reserve", data);
   });
+
   socket.on("cancel", async (data) => {
     const screenId = data.screenId;
     const seatNumber = Number(data.y) * 14 + Number(data.x);

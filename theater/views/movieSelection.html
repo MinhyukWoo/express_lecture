@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>영화 예매 서비스</title>
+  </head>
+  <body>
+    <select name="screen" id="screen_list" form="screen_selection">
+      {% for screen in screens %}
+      <option value="{{screen.id}}">
+        {{screen.date}}: {{screen.screenMovieTitle}}
+      </option>
+      {% endfor %}
+    </select>
+    <form
+      action="http://localhost:52273/seats"
+      method="get"
+      id="screen_selection"
+    >
+      <input type="submit" value="예매하러 가기" id="screen_select_button" />
+    </form>
+  </body>
+</html>
