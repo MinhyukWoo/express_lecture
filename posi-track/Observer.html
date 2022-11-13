@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, user-scalable=no"
+    />
+    <style>
+      * {
+        margin: 0px;
+        padding: 0px;
+      }
+      html,
+      body,
+      #map {
+        height: 100%;
+      }
+    </style>
+    <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+    <script src="http://maps.google.com/maps/api/js?key=&sensor=false"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      $(document).ready(function () {
+        function setMarker(latitude, longitude) {
+          const marker = new google.maps.Marker({
+            position: new google.maps.LatLng(latitude, longitude),
+            map: map,
+          });
+        }
+
+        const name = prompt("이름을 입력하세요.", "이름");
+        const socket = io.connect();
+        socket.emit("join", name);
+        const temp = document.getElementById("map");
+        const map = new google.maps.Map(temp, {
+          zoom: 6,
+          center: new google.maps.LatLng(37, 126),
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+        });
+        const array = [
+          {
+            name: "test",
+            latitude: 37.55824765026366,
+            longitude: 126.82509847539825,
+          },
+          {
+            name: "rintiantta",
+            latitude: 37.558114738730225,
+            longitude: 126.82525932183464,
+          },
+        ];
+        array.forEach(function (data) {
+          setMarker(data.latitude, data.longitude);
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="map"></div>
+  </body>
+</html>
