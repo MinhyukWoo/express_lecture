@@ -13,7 +13,7 @@
       }
       html,
       body,
-      #map {
+      #google_map {
         height: 100%;
       }
     </style>
@@ -32,7 +32,7 @@
         const name = prompt("이름을 입력하세요.", "이름");
         const socket = io.connect();
         socket.emit("join", name);
-        const temp = document.getElementById("map");
+        const temp = document.getElementById("google_map");
         const map = new google.maps.Map(temp, {
           zoom: 6,
           center: new google.maps.LatLng(37, 126),
@@ -57,6 +57,6 @@
     </script>
   </head>
   <body>
-    <div id="map"></div>
+    <div id="google_map"></div>
   </body>
 </html>

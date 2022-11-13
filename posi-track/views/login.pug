@@ -1,0 +1,15 @@
+doctype html 
+html
+    head
+        title 로그인
+    body 
+        h1 로그인
+        form(action="http://localhost:52273/auth/login", method="post")
+            div
+                span 아이디
+                input#usernameInput(type="text", name="username")
+            div
+                span 비밀번호
+                input#passwordInput(type="password", name="password")
+            button(type="submit") 로그인
+        a(href="http://localhost:52273/signup") 회원가입하러 가기
