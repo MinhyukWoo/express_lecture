@@ -1,5 +1,4 @@
 require("dotenv").config();
-const fs = require("fs");
 const http = require("http");
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -49,29 +48,6 @@ app.use("/auth", authRouter);
 
 app.get("/", (requset, response) => {
   return response.redirect("/login");
-});
-
-app.get("/tracker", (request, response) => {
-  fs.readFile("Tracker.html", function (error, data) {
-    response.send(data.toString());
-  });
-});
-
-app.get("/observer", function (request, response) {
-  fs.readFile("Observer.html", function (error, data) {
-    response.send(data.toString());
-  });
-});
-
-app.get("/showdata/:name", (request, response) => {
-  console.log(request.params.name);
-  client.query(
-    "SELECT * FROM locations WHERE name=?",
-    [request.params.name],
-    function (error, data) {
-      response.send(data);
-    }
-  );
 });
 
 app.use(function (err, request, response, next) {
