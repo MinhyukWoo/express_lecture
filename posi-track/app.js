@@ -13,8 +13,8 @@ const client = require("mysql2").createConnection({
   password: process.env.DB_PASSWORD,
   database: "location",
 });
-const authRouter = require("./routes/authentication");
-const pageRouter = require("./routes/page");
+const authRouter = require("./routers/authentication");
+const pageRouter = require("./routers/page");
 const passportConfig = require("./passport/index");
 
 const app = express();
